@@ -1,4 +1,4 @@
-# dhcp-practica
+# DHCP-practice
 Github repository for practice with DHCP
 
 ## Creacion de Vagrantfile
@@ -199,3 +199,194 @@ host printer {
 ```
 And thats how we have ssh service active and working in our server.
 ## CLIENT OPERATIONS:
+
+Now, we're gonna accede the client through ssh: vagrant ssh client (in our case).
+
+```
+vagrant@bookworm:~$ ip addr
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host noprefixroute 
+       valid_lft forever preferred_lft forever
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 08:00:27:8d:c0:4d brd ff:ff:ff:ff:ff:ff
+    altname enp0s3
+    inet 10.0.2.15/24 brd 10.0.2.255 scope global dynamic eth0
+       valid_lft 78664sec preferred_lft 78664sec
+    inet6 fd17:625c:f037:2:a00:27ff:fe8d:c04d/64 scope global dynamic mngtmpaddr 
+       valid_lft 86152sec preferred_lft 14152sec
+    inet6 fe80::a00:27ff:fe8d:c04d/64 scope link 
+       valid_lft forever preferred_lft forever
+3: eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 08:00:27:63:01:a4 brd ff:ff:ff:ff:ff:ff
+    altname enp0s8
+    inet 192.168.57.25/24 brd 192.168.57.255 scope global dynamic eth1
+       valid_lft 78672sec preferred_lft 78672sec
+    inet6 fe80::a00:27ff:fe63:1a4/64 scope link 
+       valid_lft forever preferred_lft forever
+vagrant@bookworm:~$ 
+```
+Then, we make pings to the ip of the server machine with the client; and to the client machine from the server.
+```
+vagrant@bookworm:~$ ping 192.168.57.10
+PING 192.168.57.10 (192.168.57.10) 56(84) bytes of data.
+64 bytes from 192.168.57.10: icmp_seq=1 ttl=64 time=0.618 ms
+64 bytes from 192.168.57.10: icmp_seq=2 ttl=64 time=0.804 ms
+64 bytes from 192.168.57.10: icmp_seq=3 ttl=64 time=0.874 ms
+64 bytes from 192.168.57.10: icmp_seq=4 ttl=64 time=0.819 ms
+64 bytes from 192.168.57.10: icmp_seq=5 ttl=64 time=0.691 ms
+64 bytes from 192.168.57.10: icmp_seq=6 ttl=64 time=0.214 ms
+64 bytes from 192.168.57.10: icmp_seq=7 ttl=64 time=0.543 ms
+64 bytes from 192.168.57.10: icmp_seq=8 ttl=64 time=0.574 ms
+64 bytes from 192.168.57.10: icmp_seq=9 ttl=64 time=0.504 ms
+64 bytes from 192.168.57.10: icmp_seq=10 ttl=64 time=0.760 ms
+64 bytes from 192.168.57.10: icmp_seq=11 ttl=64 time=0.728 ms
+^C
+--- 192.168.57.10 ping statistics ---
+11 packets transmitted, 11 received, 0% packet loss, time 10364ms
+rtt min/avg/max/mdev = 0.214/0.648/0.874/0.178 ms
+vagrant@bookworm:~$ 
+```
+```
+vagrant@bookworm:~$ ping 192.168.57.25
+PING 192.168.57.25 (192.168.57.25) 56(84) bytes of data.
+64 bytes from 192.168.57.25: icmp_seq=1 ttl=64 time=0.626 ms
+64 bytes from 192.168.57.25: icmp_seq=2 ttl=64 time=0.593 ms
+64 bytes from 192.168.57.25: icmp_seq=3 ttl=64 time=0.477 ms
+64 bytes from 192.168.57.25: icmp_seq=4 ttl=64 time=0.298 ms
+^X64 bytes from 192.168.57.25: icmp_seq=5 ttl=64 time=0.327 ms
+64 bytes from 192.168.57.25: icmp_seq=6 ttl=64 time=0.546 ms
+^C64 bytes from 192.168.57.25: icmp_seq=7 ttl=64 time=0.394 ms
+64 bytes from 192.168.57.25: icmp_seq=8 ttl=64 time=0.540 ms
+^C
+--- 192.168.57.25 ping statistics ---
+8 packets transmitted, 8 received, 0% packet loss, time 7162ms
+rtt min/avg/max/mdev = 0.298/0.475/0.626/0.114 ms
+```
+## CHECK FOR THE LEASE ON THE SERVER:
+
+Into the server machine, we type: cat /var/lib/dhcp/dhcpd.leases
+```
+cat /var/lib/dhcp/dhcpd.leases
+```
+This command is used for seeing the assignments made to the client machine, because if we remember well, the printer had a fixed IP.
+```
+vagrant@bookworm:~$ cat /var/lib/dhcp/dhcpd.leases
+# The format of this file is documented in the dhcpd.leases(5) manual page.
+# This lease file was written by isc-dhcp-4.4.3-P1
+
+# authoring-byte-order entry is generated, DO NOT DELETE
+authoring-byte-order little-endian;
+
+lease 192.168.57.26 {
+  starts 3 2026/10/07 20:52:31;
+  ends 3 2026/10/07 20:53:45;
+  tstp 3 2026/10/07 20:53:45;
+  cltt 3 2026/10/07 20:52:52;
+  binding state free;
+  hardware ethernet 08:00:27:63:01:a4;
+}
+lease 192.168.57.25 {
+  starts 3 2026/10/07 20:58:07;
+  ends 3 2026/10/07 21:04:28;
+  tstp 3 2026/10/07 21:04:28;
+  cltt 3 2026/10/07 21:04:22;
+  binding state free;
+  hardware ethernet 08:00:27:63:01:a4;
+  uid "\377'c\001\244\000\001\000\0012YF\375\010\000'c\001\244";
+}
+lease 192.168.57.25 {
+  starts 3 2026/10/07 21:04:37;
+  ends 4 2026/10/08 21:04:37;
+  cltt 3 2026/10/07 21:04:37;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 08:00:27:63:01:a4;
+  uid "\377'c\001\244\000\001\000\0012YF\375\010\000'c\001\244";
+  client-hostname "bookworm";
+}
+lease 192.168.57.26 {
+  starts 3 2026/10/07 21:04:55;
+  ends 4 2026/10/08 21:04:55;
+  cltt 3 2026/10/07 21:04:55;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 08:00:27:63:01:a4;
+  client-hostname "bookworm";
+}
+```
+It's gonna give us 2 leases for just 1 client, because the client has a two global dynamic interfaces.
+
+```
+vagrant@bookworm:~$ ip addr
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host noprefixroute 
+       valid_lft forever preferred_lft forever
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 08:00:27:8d:c0:4d brd ff:ff:ff:ff:ff:ff
+    altname enp0s3
+    inet 10.0.2.15/24 brd 10.0.2.255 scope global dynamic eth0
+       valid_lft 85254sec preferred_lft 85254sec
+    inet6 fd17:625c:f037:2:a00:27ff:fe8d:c04d/64 scope global dynamic mngtmpaddr 
+       valid_lft 86217sec preferred_lft 14217sec
+    inet6 fe80::a00:27ff:fe8d:c04d/64 scope link 
+       valid_lft forever preferred_lft forever
+3: eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 08:00:27:63:01:a4 brd ff:ff:ff:ff:ff:ff
+    altname enp0s8
+    inet 192.168.57.25/24 brd 192.168.57.255 scope global dynamic eth1
+       valid_lft 85270sec preferred_lft 85270sec
+    inet 192.168.57.26/24 brd 192.168.57.255 scope global secondary dynamic eth1
+       valid_lft 85289sec preferred_lft 85289sec
+    inet6 fe80::a00:27ff:fe63:1a4/64 scope link 
+       valid_lft forever preferred_lft forever
+```
+## CONFIGURATION OF THE PRINTER:
+
+For doing this, we configured it previously on Vagrantfile. We're gonna check anyways if this is true:
+
+We enter in the printer with: vagrant ssh printer
+
+```
+vagrant@bookworm:~$ ip addr
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host noprefixroute 
+       valid_lft forever preferred_lft forever
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 08:00:27:8d:c0:4d brd ff:ff:ff:ff:ff:ff
+    altname enp0s3
+    inet 10.0.2.15/24 brd 10.0.2.255 scope global dynamic eth0
+       valid_lft 74246sec preferred_lft 74246sec
+    inet6 fd17:625c:f037:2:a00:27ff:fe8d:c04d/64 scope global dynamic mngtmpaddr 
+       valid_lft 86370sec preferred_lft 14370sec
+    inet6 fe80::a00:27ff:fe8d:c04d/64 scope link 
+       valid_lft forever preferred_lft forever
+3: eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 08:00:27:aa:bb:cc brd ff:ff:ff:ff:ff:ff
+    altname enp0s8
+    inet 192.168.57.100/24 brd 192.168.57.255 scope global dynamic eth1
+       valid_lft 74258sec preferred_lft 74258sec
+    inet6 fe80::a00:27ff:feaa:bbcc/64 scope link 
+       valid_lft forever preferred_lft forever
+vagrant@bookworm:~$ 
+```
+If we look at eth1, we see that the IP is the sames as we assigned in the Vagrantfile. If we didn't do it, we would have to configure it from inside, but the work is done.
+
+## CREDITS:
+
+I helped myself for this exercise on José Alejandro Salinas GitHub repository. It made me do the activity easily, configuring the Vagrantfile similar to his with some changes.
+
+```
+https://github.com/Dinaster198/Vagrant-DHCP.git
+```
+Thank you.
