@@ -58,7 +58,7 @@ Vagrant.configure("2") do |config|
 
 end
 ```
-##SERVER OPERATIONS:
+## SERVER OPERATIONS:
 After making the file, type the command vagrant up for starting up the VMs. Check if the machines are working with vagrant status:
 
 ```
@@ -198,4 +198,4 @@ host printer {
 }
 ```
 And thats how we have ssh service active and working in our server.
-##CLIENT OPERATIONS:
+## CLIENT OPERATIONS:
